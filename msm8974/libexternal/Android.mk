@@ -5,7 +5,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE                  := libexternal
 LOCAL_PROPRIETARY_MODULE      := true
 LOCAL_MODULE_TAGS             := optional
-LOCAL_SHARED_LIBRARIES        := $(common_libs) libmedia
+LOCAL_SHARED_LIBRARIES        := $(common_libs)
 LOCAL_CFLAGS                  := $(common_flags) -DLOG_TAG=\"qdexternal\"
 LOCAL_HEADER_LIBRARIES        := display_headers generated_kernel_headers
 LOCAL_SRC_FILES               := external.cpp

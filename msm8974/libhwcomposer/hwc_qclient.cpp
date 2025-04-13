@@ -39,8 +39,7 @@ using namespace qService;
 namespace qClient {
 
 // ----------------------------------------------------------------------------
-QClient::QClient(hwc_context_t *ctx) : mHwcContext(ctx),
-        mMPDeathNotifier(new MPDeathNotifier(ctx))
+QClient::QClient(hwc_context_t *ctx) : mHwcContext(ctx)
 {
     ALOGD_IF(QCLIENT_DEBUG, "QClient Constructor invoked");
 }
@@ -53,10 +52,8 @@ QClient::~QClient()
 status_t QClient::notifyCallback(uint32_t msg, uint32_t value) {
     switch(msg) {
         case IQService::SECURING:
-            securing(value);
             break;
         case IQService::UNSECURING:
-            unsecuring(value);
             break;
         case IQService::SCREEN_REFRESH:
             return screenRefresh();
@@ -65,39 +62,6 @@ status_t QClient::notifyCallback(uint32_t msg, uint32_t value) {
             return NO_ERROR;
     }
     return NO_ERROR;
-}
-
-void QClient::securing(uint32_t startEnd) {
-    Locker::Autolock _sl(mHwcContext->mDrawLock);
-    //The only way to make this class in this process subscribe to media
-    //player's death.
-    IMediaDeathNotifier::getMediaPlayerService();
-
-    mHwcContext->mSecuring = startEnd;
-    //We're done securing
-    if(startEnd == IQService::END)
-        mHwcContext->mSecureMode = true;
-    if(mHwcContext->proc)
-        mHwcContext->proc->invalidate(mHwcContext->proc);
-}
-
-void QClient::unsecuring(uint32_t startEnd) {
-    Locker::Autolock _sl(mHwcContext->mDrawLock);
-    mHwcContext->mSecuring = startEnd;
-    //We're done unsecuring
-    if(startEnd == IQService::END)
-        mHwcContext->mSecureMode = false;
-    if(mHwcContext->proc)
-        mHwcContext->proc->invalidate(mHwcContext->proc);
-}
-
-void QClient::MPDeathNotifier::died() {
-    Locker::Autolock _sl(mHwcContext->mDrawLock);
-    ALOGD_IF(QCLIENT_DEBUG, "Media Player died");
-    mHwcContext->mSecuring = false;
-    mHwcContext->mSecureMode = false;
-    if(mHwcContext->proc)
-        mHwcContext->proc->invalidate(mHwcContext->proc);
 }
 
 android::status_t QClient::screenRefresh() {
